@@ -3,7 +3,15 @@ guid: 6db99d588f991214489802e1ea2b04d1
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - sceneCamera: {instanceID: 0}
+  - quad: {instanceID: 0}
+  - drawParent: {instanceID: 0}
+  - drawObject: {instanceID: 0}
+  - beginBrush: {fileID: 2100000, guid: 9d504ba3fc250bd4fa468dac5697be8f, type: 2}
+  - scaleText: {instanceID: 0}
+  - drawnTexture: {instanceID: 0}
+  - matToGive: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

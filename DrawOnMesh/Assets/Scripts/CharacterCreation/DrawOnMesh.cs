@@ -6,23 +6,27 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class DrawOnMesh : MonoBehaviour {
-	public Camera sceneCamera;
-	[SerializeField] Transform quad;
-	[SerializeField] Transform drawParent;
-	Vector3 uvPos;
-	[SerializeField] GameObject drawObject;
-	Color currentColor;
-	float offset = -0.01f;
-	[SerializeField] float scale = 0.1f;
-	[SerializeField] Text scaleText;
-	[SerializeField] RenderTexture drawnTexture;
-	[SerializeField] Material matToGive;
-	bool isBlocked;
+	public Camera sceneCamera; //Main scene camera
+	[SerializeField] Transform quad; //Quad to draw on
+	[SerializeField] Transform drawParent; //Parent of the pixels
+	Vector3 uvPos; //Position of UV in world space
+	[SerializeField] GameObject drawObject; //Object to instantiate when painted
+	[SerializeField] Material beginBrush;
+	Color currentColor; //Currently used color
+	Material currentMaterial;
+	float offset = -0.01f; //Offset so the brush doesn't clip
+	[SerializeField] float scale = 0.1f; //Scale of brush
+	[SerializeField] Text scaleText; //UI Text of scale
+	[SerializeField] RenderTexture drawnTexture; //Render texture of camera
+	[SerializeField] Material matToGive; //Material to give when applied
+	
+	bool isBlocked; //Bool to check if you can draw
 
 	void Start () {
 		uvPos = quad.position;
 		currentColor = Color.black;
 		SetSize (scale.ToString ());
+		currentMaterial = beginBrush;
 
 	}
 
@@ -45,8 +49,13 @@ public class DrawOnMesh : MonoBehaviour {
 		//Make pixel
 		GameObject newPixel = Instantiate (drawObject, Vector3.zero, drawObject.transform.rotation, drawParent);
 
-		//Set color
+		//Set material
+		newPixel.GetComponent<Renderer>().material = currentMaterial;
+
+		//Get material
 		Material pixelMat = newPixel.GetComponent<Renderer> ().material;
+		
+		//Set color
 		pixelMat.color = currentColor;
 
 		//Set scale
@@ -63,6 +72,10 @@ public class DrawOnMesh : MonoBehaviour {
 	public void SetColor (ColorHolder holder) {
 		currentColor = holder.color;
 		offset -= 0.01f;
+	}
+
+	public void SetBrush(BrushHolder holder) {
+		currentMaterial = holder.brush;
 	}
 
 	public void SetSize (string sizeText) {
