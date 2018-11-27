@@ -50,7 +50,7 @@ public class PlayerBehaviour : MonoBehaviour {
 		float ver = Input.GetAxis ("Vertical");
 		Vector3 movement = new Vector3 (hor, 0.0f, ver);
 
-		parentTransform.Translate (movement * speed * Time.deltaTime);
+		parentTransform.Translate ( movement * speed * Time.deltaTime);
 	}
 
 	void Jump () {

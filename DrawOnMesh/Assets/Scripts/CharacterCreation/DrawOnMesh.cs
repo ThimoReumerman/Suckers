@@ -19,7 +19,7 @@ public class DrawOnMesh : MonoBehaviour {
 	[SerializeField] Text scaleText; //UI Text of scale
 	[SerializeField] RenderTexture drawnTexture; //Render texture of camera
 	[SerializeField] Material matToGive; //Material to give when applied
-	
+
 	bool isBlocked; //Bool to check if you can draw
 
 	void Start () {
@@ -45,16 +45,18 @@ public class DrawOnMesh : MonoBehaviour {
 		isBlocked = isOver;
 	}
 
+	int index;
+
 	void Draw () {
 		//Make pixel
 		GameObject newPixel = Instantiate (drawObject, Vector3.zero, drawObject.transform.rotation, drawParent);
 
 		//Set material
-		newPixel.GetComponent<Renderer>().material = currentMaterial;
+		newPixel.GetComponent<Renderer> ().material = currentMaterial;
 
 		//Get material
 		Material pixelMat = newPixel.GetComponent<Renderer> ().material;
-		
+
 		//Set color
 		pixelMat.color = currentColor;
 
@@ -66,16 +68,38 @@ public class DrawOnMesh : MonoBehaviour {
 		newPixel.transform.localPosition = uvPos;
 
 		//Set name
-		newPixel.name = "F";
+		newPixel.name = index + "pixel";
+		index += 1;	
 	}
 
-	public void SetColor (ColorHolder holder) {
-		currentColor = holder.color;
-		offset -= 0.01f;
+	public void SetRed (string colorValue) {
+		int red;
+		int.TryParse (colorValue, out red);
+		currentColor.r = red;
+		offset += -0.01f;
 	}
 
-	public void SetBrush(BrushHolder holder) {
+	public void SetBlue (string colorValue) {
+		int blue;
+		int.TryParse (colorValue, out blue);
+		currentColor.b = blue;
+		offset += -0.01f;
+	}
+
+	public void SetGreen (string colorValue) {
+		int green;
+		int.TryParse (colorValue, out green);
+		currentColor.g = green;
+		offset += -0.01f;
+	}
+
+	public void SetHex (string colorValue) {
+
+	}
+
+	public void SetBrush (BrushHolder holder) {
 		currentMaterial = holder.brush;
+		offset += -0.01f;
 	}
 
 	public void SetSize (string sizeText) {
