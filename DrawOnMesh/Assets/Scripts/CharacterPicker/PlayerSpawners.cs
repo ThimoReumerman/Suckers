@@ -5,8 +5,11 @@ using UnityEngine;
 
 public class PlayerSpawners : MonoBehaviour {
 	[SerializeField] GameObject player;
+	[SerializeField] GameObject playerParent;
 	[SerializeField] Shader shader;
 	[SerializeField] float spaceBetween;
+	public GoToNext goToNext;
+	public List<GameObject> spawnedObjects = new List<GameObject> ();
 	byte[] fileData;
 
 	// Use this for initialization
@@ -21,8 +24,19 @@ public class PlayerSpawners : MonoBehaviour {
 			GameObject newPlayer = Instantiate (player);
 			playerPos.x = index * spaceBetween;
 			newPlayer.transform.position = playerPos;
-			newPlayer.GetComponent<Rotator> ().enabled = true;
-			Renderer rend = newPlayer.GetComponent<Renderer> ();
+
+			string s;
+			s = file;
+			int lastSlash = s.LastIndexOf ("/");
+
+			s = s.Remove (0, lastSlash + 1);
+			s = s.Replace (".png", "");
+			print (s);
+			newPlayer.name = s;
+			
+			newPlayer.transform.parent = playerParent.transform;
+			newPlayer.GetComponentInChildren<Rotator> ().enabled = true;
+			Renderer rend = newPlayer.GetComponentInChildren<Renderer> ();
 			rend.material = new Material (shader);
 
 			fileData = File.ReadAllBytes (file);
@@ -31,12 +45,10 @@ public class PlayerSpawners : MonoBehaviour {
 			rend.material.mainTexture = tex;
 
 			index += 1;
+			spawnedObjects.Add (newPlayer);
 		}
 
-	}
-
-	// Update is called once per frame
-	void Update () {
+		goToNext.SetList (spawnedObjects);
 
 	}
 }

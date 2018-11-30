@@ -19,6 +19,9 @@ public class DrawOnMesh : MonoBehaviour {
 	[SerializeField] Text scaleText; //UI Text of scale
 	[SerializeField] RenderTexture drawnTexture; //Render texture of camera
 	[SerializeField] Material matToGive; //Material to give when applied
+	[SerializeField] Shader unlitTex;
+
+	[SerializeField] Transform toDrawOnQuad;
 
 	[SerializeField] Image previewImg;
 
@@ -176,6 +179,11 @@ public class DrawOnMesh : MonoBehaviour {
 		tex.ReadPixels (new Rect (0, 0, width, height), 0, 0);
 		tex.Apply ();
 		RenderTexture.active = null;
+		toDrawOnQuad.GetComponent<Renderer>().material.SetTexture("_MainTexture", tex);
+		foreach(Transform child in drawParent) {
+			Destroy(child.gameObject);
+		}
+
 
 		SaveTexture (tex);
 	}
