@@ -12,7 +12,7 @@ public class DrawOnMesh : MonoBehaviour {
 	Vector3 uvPos; //Position of UV in world space
 	[SerializeField] GameObject drawObject; //Object to instantiate when painted
 	[SerializeField] Material beginBrush;
-	Color currentColor; //Currently used color
+	Color currentColor = Color.black; //Currently used color
 	Material currentMaterial;
 	float offset = -0.01f; //Offset so the brush doesn't clip
 	[SerializeField] float scale = 0.1f; //Scale of brush
@@ -20,20 +20,23 @@ public class DrawOnMesh : MonoBehaviour {
 	[SerializeField] RenderTexture drawnTexture; //Render texture of camera
 	[SerializeField] Material matToGive; //Material to give when applied
 
+	[SerializeField] Image previewImg;
+
+	string pngName;
+
 	bool isBlocked; //Bool to check if you can draw
 
 	void Start () {
 		uvPos = quad.position;
-		currentColor = Color.black;
-		SetSize (scale.ToString ());
+		//		SetSize (scale.ToString ());
 		currentMaterial = beginBrush;
+		pngName = "Unnamed.png";
 
 	}
 
 	void Update () {
 		if (Input.GetButton ("Fire1")) {
 			if (!isBlocked) {
-
 				if (HitUV (ref uvPos)) {
 					Draw ();
 				}
@@ -69,38 +72,52 @@ public class DrawOnMesh : MonoBehaviour {
 
 		//Set name
 		newPixel.name = index + "pixel";
-		index += 1;	
+		index += 1;
 	}
 
 	public void SetRed (string colorValue) {
-		int red;
-		int.TryParse (colorValue, out red);
-		currentColor.r = red;
-		offset += -0.01f;
+		float red;
+		float.TryParse (colorValue, out red);
+		if (red > 255) {
+			red = 255;
+		}
+		currentColor.r = red / 255;
+
+		UpdateColorPreview ();
 	}
 
 	public void SetBlue (string colorValue) {
-		int blue;
-		int.TryParse (colorValue, out blue);
-		currentColor.b = blue;
-		offset += -0.01f;
+		float blue;
+		float.TryParse (colorValue, out blue);
+		if (blue > 255) {
+			blue = 255;
+		}
+		currentColor.b = blue / 255;
+		UpdateColorPreview ();
 	}
 
 	public void SetGreen (string colorValue) {
-		int green;
-		int.TryParse (colorValue, out green);
-		currentColor.g = green;
-		offset += -0.01f;
+		float green;
+		float.TryParse (colorValue, out green);
+		if (green > 255) {
+			green = 255;
+		}
+
+		currentColor.g = green / 255;
+
+		UpdateColorPreview ();
 	}
 
-	public void SetHex (string colorValue) {
-
+	void UpdateColorPreview () {
+		offset -= 0.01f;
+		previewImg.color = currentColor;
 	}
 
 	public void SetBrush (BrushHolder holder) {
 		currentMaterial = holder.brush;
 		offset += -0.01f;
 	}
+
 
 	public void SetSize (string sizeText) {
 		float size;
@@ -109,6 +126,7 @@ public class DrawOnMesh : MonoBehaviour {
 		scale = size / 10;
 		scaleText.text = size.ToString ();
 	}
+
 
 	public void Reset () {
 		foreach (Transform child in drawParent) {
@@ -159,11 +177,26 @@ public class DrawOnMesh : MonoBehaviour {
 		tex.Apply ();
 		RenderTexture.active = null;
 
-		//Give it to a material
-		matToGive.mainTexture = tex;
+		SaveTexture (tex);
+	}
 
-		//Go to main scene
-		SceneManager.LoadScene ("Sample1");
+	public void SetImageName (string imgName) {
+		pngName = imgName + ".png";
+	}
+
+	public void SaveTexture (Texture2D texture) {
+		byte[] bytes = texture.EncodeToPNG ();
+		string _path = Application.dataPath + "/../SavedImages/";
+
+		if (!Directory.Exists (_path)) {
+			Directory.CreateDirectory (_path);
+		}
+
+		string fullPath = _path + pngName;
+
+		File.WriteAllBytes (fullPath, bytes);
+
+		print ("Saving worked! You can find the PNG image at " + fullPath);
 	}
 
 }
