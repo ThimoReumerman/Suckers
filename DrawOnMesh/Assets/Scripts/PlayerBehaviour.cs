@@ -9,10 +9,12 @@ public class PlayerBehaviour : MonoBehaviour {
 	public bool canJump;
 	[SerializeField] Transform parentTransform;
 	[SerializeField] Rigidbody rb;
+	[SerializeField] float rotateSpeed;
+	[SerializeField] Transform camOrbit;
 
-	public Vector3 targetPoint;
+	[SerializeField] Transform ball;
+
 	void Update () {
-
 		if (canJump) {
 			if (Input.GetButtonDown ("Jump")) {
 				print ("ayy lmao");
@@ -23,34 +25,21 @@ public class PlayerBehaviour : MonoBehaviour {
 
 	void FixedUpdate () {
 		Walk ();
-		Rotate ();
-
+		Vector3 toLookAt = new Vector3(ball.position.x, camOrbit.position.y, ball.position.z);
+		//camOrbit.LookAt(toLookAt);
 	}
 
-	void Rotate () {
-		Plane playerPlane = new Plane (Vector3.up, transform.position);
 
-		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
-
-		float hitdist = 0.0f;
-
-		if (playerPlane.Raycast (ray, out hitdist)) {
-
-			targetPoint = ray.GetPoint (hitdist);
-
-			Quaternion targetRotation = Quaternion.LookRotation (targetPoint - transform.position);
-
-			transform.rotation = targetRotation;
-
-		}
-	}
 
 	void Walk () {
-		float hor = Input.GetAxis ("Horizontal");
-		float ver = Input.GetAxis ("Vertical");
-		Vector3 movement = new Vector3 (hor, 0.0f, ver);
+		float ver = Input.GetAxis("Vertical") * speed * Time.deltaTime;
+		float hor = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
+		float rotate = Input.GetAxisRaw ("Mouse X") * rotateSpeed * Time.deltaTime;
 
-		parentTransform.Translate ( movement * speed * Time.deltaTime);
+		Vector3 verMovement = transform.forward * ver;
+		Vector3 horMovement = transform.right * hor;
+		transform.Rotate(new Vector3(0.0f, rotate, 0.0f), Space.World);
+		parentTransform.Translate (verMovement + horMovement);
 	}
 
 	void Jump () {
