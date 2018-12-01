@@ -21,7 +21,7 @@ public class DrawOnMesh : MonoBehaviour {
 	[SerializeField] Material matToGive; //Material to give when applied
 	[SerializeField] Shader unlitTex;
 
-	[SerializeField] Transform toDrawOnQuad;
+	[SerializeField] Material baseMaterial;
 
 	[SerializeField] Image previewImg;
 
@@ -34,6 +34,7 @@ public class DrawOnMesh : MonoBehaviour {
 		//		SetSize (scale.ToString ());
 		currentMaterial = beginBrush;
 		pngName = "Unnamed.png";
+		baseMaterial.mainTexture = null;
 
 	}
 
@@ -76,6 +77,11 @@ public class DrawOnMesh : MonoBehaviour {
 		//Set name
 		newPixel.name = index + "pixel";
 		index += 1;
+
+		if (index > 1000) {
+			MergeTexture ();
+			index = 0;
+		}
 	}
 
 	public void SetRed (string colorValue) {
@@ -121,7 +127,6 @@ public class DrawOnMesh : MonoBehaviour {
 		offset += -0.01f;
 	}
 
-
 	public void SetSize (string sizeText) {
 		float size;
 		float.TryParse (sizeText, out size);
@@ -129,7 +134,6 @@ public class DrawOnMesh : MonoBehaviour {
 		scale = size / 10;
 		scaleText.text = size.ToString ();
 	}
-
 
 	public void Reset () {
 		foreach (Transform child in drawParent) {
@@ -170,7 +174,10 @@ public class DrawOnMesh : MonoBehaviour {
 		}
 	}
 
-	public void Save () {
+	Texture2D mergedTexture;
+
+	void MergeTexture () {
+		print ("Merging...");
 		//Make render texture a Texture2d
 		RenderTexture.active = drawnTexture;
 		int width = drawnTexture.width;
@@ -179,13 +186,19 @@ public class DrawOnMesh : MonoBehaviour {
 		tex.ReadPixels (new Rect (0, 0, width, height), 0, 0);
 		tex.Apply ();
 		RenderTexture.active = null;
-		toDrawOnQuad.GetComponent<Renderer>().material.SetTexture("_MainTexture", tex);
-		foreach(Transform child in drawParent) {
-			Destroy(child.gameObject);
+		baseMaterial.mainTexture = tex;
+
+		foreach (Transform child in drawParent) {
+			Destroy (child.gameObject);
 		}
 
+		mergedTexture = tex;
+	}
 
-		SaveTexture (tex);
+	public void Save () {
+		MergeTexture ();
+
+		SaveTexture (mergedTexture);
 	}
 
 	public void SetImageName (string imgName) {
